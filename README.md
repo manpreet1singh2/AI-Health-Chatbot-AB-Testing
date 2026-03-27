@@ -24,6 +24,12 @@ This project is an AI-powered Health Coach chatbot built using Telegram, n8n, an
 The goal is to improve user engagement and retention through structured onboarding and intelligent health tracking.
 
 ---
+## 📸 Demo
+
+![App Screenshot](assets/screenshot.png)
+<img width="1612" height="694" alt="image" src="https://github.com/user-attachments/assets/b10cd52b-a066-4bd5-92bc-1274bca6eda6" />
+<img width="1014" height="1013" alt="image" src="https://github.com/user-attachments/assets/be17414e-2e09-4e57-af79-fdbf90f01b1a" />
+
 
 ## 🧩 Features
 
