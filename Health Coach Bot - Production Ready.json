@@ -1,0 +1,1459 @@
+{
+  "name": "Health Coach Bot - Production Ready",
+  "nodes": [
+    {
+      "parameters": {
+        "content": "## 🛠️ AI TOOLS\n\nThe AI agent can call these tools:\n\n1. Get User Profile\n2. Get User Meals\n3. Add Meal\n4. Update Meal\n5. Delete Meal\n6. Create User Profile\n7. Log Event\n8. Create Calendar Event 📅\n9. Get Calendar Events 📅\n\nAll tools use fromAi() to let the AI\ndynamically provide parameters.",
+        "height": 300,
+        "width": 1000,
+        "color": 4
+      },
+      "id": "facb7035-a1b6-4538-8528-285eee211b1e",
+      "name": "Sticky Note 7dc14fa0",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        704,
+        800
+      ]
+    },
+    {
+      "parameters": {
+        "content": "## 📅 CALENDAR FEATURES\n\nGoogle Calendar integration allows:\n- Scheduling meal reminders\n- Setting up health checkups\n- Viewing upcoming events\n- Daily/weekly meal planning\n\nUsers can ask:\n\"Remind me to eat breakfast at 8am\"\n\"Schedule my workout tomorrow\"\n\"What is on my calendar today?\"",
+        "height": 300,
+        "width": 600,
+        "color": 5
+      },
+      "id": "0622cf0a-0e43-45e4-b862-094e8675f537",
+      "name": "Sticky Note Calendar",
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        1008,
+        1120
+      ]
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "start",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "start"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "addmeal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "addmeal"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "viewmeals",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "viewmeals"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "editmeal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "editmeal"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict"
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.command }}",
+                    "rightValue": "deletemeal",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "deletemeal"
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "id": "bd35bbe7-d92c-44b0-b9ba-1fa1f9325b28",
+      "name": "Route Commands",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -1568,
+        1552
+      ]
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users",
+        "limit": 1,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.userId }}"
+            }
+          ]
+        }
+      },
+      "id": "54347854-f0de-4e8a-81b6-050530e8da8e",
+      "name": "Check User Exists",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        928
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $json.length }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "1caaee96-3b80-423a-ad8a-8326c5b8cd30",
+      "name": "Is New User?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1120,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://statsigapi.net/v1/check_gate",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "STATSIG-API-KEY",
+              "value": "={{ $vars.STATSIG_SERVER_KEY }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"user\": {\n    \"userID\": \"{{ $('Prepare AI Context1').item.json.userId }}\"\n  },\n  \"gateName\": \"ab_test_onboarding_v1\"\n}",
+        "options": {}
+      },
+      "id": "5b9e66e0-09be-4abc-b571-e6a591f36321",
+      "name": "Statsig: Assign Group",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        -272,
+        832
+      ],
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "iiJPw5CY5pAhEpKb",
+          "name": "Header Auth account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const statsigResult = $input.item.json;\nconst isTest = statsigResult.value === true;\nconst group = isTest ? 'test' : 'control';\nconst ctx = $('Prepare AI Context1').item.json;\n\nreturn [{\n  json: {\n    ...ctx,\n    group,\n    isTestGroup: isTest\n  }\n}];"
+      },
+      "id": "7b8a0d80-7447-4d31-94a9-fb2049cf0846",
+      "name": "Set Group from Statsig",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        592,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "users",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $json.userId }}"
+            },
+            {
+              "fieldId": "username",
+              "fieldValue": "={{ $json.userName }}"
+            },
+            {
+              "fieldId": "first_name",
+              "fieldValue": "={{ $json.userName }}"
+            },
+            {
+              "fieldId": "group",
+              "fieldValue": "={{ $json.group }}"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "a9216104-40d9-4049-bd69-d7d005af2135",
+      "name": "Create User in DB",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        816,
+        832
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Set Group from Statsig').item.json.userId }}"
+            },
+            {
+              "fieldId": "event_type",
+              "fieldValue": "group_assignment"
+            },
+            {
+              "fieldId": "event_data",
+              "fieldValue": "={{ JSON.stringify({ group: $('Set Group from Statsig').item.json.group, source: 'statsig' }) }}"
+            },
+            {
+              "fieldId": "timestamp",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "b73e54aa-1714-4310-8f0d-8e930af4e3e4",
+      "name": "Log: Group Assignment",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1040,
+        832
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "leftValue": "={{ $('Set Group from Statsig').item.json.group }}",
+              "rightValue": "test",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "efd74a4e-478c-4bfb-9fde-2c77df40eaf1",
+      "name": "Test or Control Group?",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        1264,
+        832
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Prepare AI Context1').item.json.chatId }}",
+        "text": "=👋 Welcome back, {{ $('Prepare AI Context1').item.json.userName }}!\n\nI'm your Health Coach 🥗 Here's what I can do:\n\n🍽️ /addmeal — Log a meal\n📋 /viewmeals — See your meal history\n✏️ /editmeal — Update a meal\n🗑️ /deletemeal — Remove a meal\n\nJust send me a message and let's get started! 💪",
+        "additionalFields": {}
+      },
+      "id": "93dfc425-fbc1-467c-ad2c-8837c24c1cbe",
+      "name": "Welcome Returning User",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        1024
+      ],
+      "webhookId": "668639e1-2985-4848-bde8-3854398db88c",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Prepare AI Context1').item.json.chatId }}",
+        "text": "=👋 Hey {{ $('Prepare AI Context1').item.json.userName }}! Welcome!\n\nI'm your personal Health Coach 🥗\n\nYou can use me to track your meals and build healthy habits.\n\nUse these commands:\n🍽️ /addmeal — Log a meal\n📋 /viewmeals — See your meals\n✏️ /editmeal — Edit a meal\n🗑️ /deletemeal — Delete a meal\n\nReady? Let's go! 💪",
+        "additionalFields": {}
+      },
+      "id": "e5b5c55d-e282-4118-bce8-f25dce345f98",
+      "name": "Welcome: Control Group",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1488,
+        928
+      ],
+      "webhookId": "98a973bd-85de-42e2-835a-a21aadd7ba1b",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Prepare AI Context1').item.json.chatId }}",
+        "text": "=🎉 Hey {{ $('Prepare AI Context1').item.json.userName }}! So excited to have you here!\n\nI'm your AI-powered Health Coach 🧠🥗\n\nLet's set up your profile in 3 quick steps so I can personalize your experience!\n\n👉 Step 1 of 3: What's your health goal?\n\nReply with one of:\n🔥 Weight loss\n💪 Muscle gain\n🥗 Healthy eating\n🏃 More active lifestyle",
+        "additionalFields": {}
+      },
+      "id": "a08fc8d2-cde8-47b6-99b5-534c27956e22",
+      "name": "Onboarding: Step 1 (Test Group)",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        1488,
+        736
+      ],
+      "webhookId": "55e90e20-f921-410d-9ad9-35244634a42b",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ $('Prepare AI Context1').item.json.userId }}"
+            },
+            {
+              "fieldId": "event_type",
+              "fieldValue": "onboarding_step_1_completed"
+            },
+            {
+              "fieldId": "event_data",
+              "fieldValue": "={ \"group\": \"test\", \"message\": \"step_1_prompt_shown\" }"
+            },
+            {
+              "fieldId": "timestamp",
+              "fieldValue": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "id": "0523ad1c-a4e6-42e1-bb29-067d7ff3a6bb",
+      "name": "Log: Onboarding Step 1",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        1712,
+        736
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "meals",
+        "limit": 1,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $json.userId }}"
+            }
+          ]
+        }
+      },
+      "id": "bc71a3b0-a13c-4e2e-a671-f8d2fdb4a73d",
+      "name": "Fetch User Profile (AI)",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        1328
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const profiles = $input.all();\n\n// Safe access to context node\nconst ctxNode = $('Prepare AI Context1').first(); // Ensure it specifically selects the first item\nconst ctx = ctxNode ? ctxNode.json : {};\n\n// Default fallbacks\nconst chatInput = ctx.chatInput || '';\nconst sessionId = ctx.sessionId || '';\n\nreturn profiles.map(profile => {\n  return {\n    json: {\n      ...ctx,\n      userProfile: profile.json || {},\n      chatInput,\n      sessionId\n    }\n  };\n});"
+      },
+      "id": "c8eef518-eb00-4ff3-bae0-0818098ab0c3",
+      "name": "Merge Profile + Context",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        1328
+      ]
+    },
+    {
+      "parameters": {
+        "tableId": "users",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userId', 'The Telegram user ID') }}"
+            },
+            {
+              "fieldId": "username",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('username', 'The username') }}"
+            },
+            {
+              "fieldId": "first_name",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('firstName', 'The first name') }}"
+            },
+            {
+              "fieldId": "group",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('group', 'The A/B test group: control or test') }}"
+            }
+          ]
+        }
+      },
+      "id": "c013fb37-c4ad-45c2-85f6-40112a7a485c",
+      "name": "Create User Profile (Tool)",
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -640,
+        1440
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Calendar', ``, 'string') }}",
+          "mode": "id",
+          "__regex": "(^[a-zA-Z0-9.!#$%&’*+/=?^_`{|}~-]+@[a-zA-Z0-9-]+(?:\\.[a-zA-Z0-9-]+)*)"
+        },
+        "start": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('startTime', 'Event start time in ISO 8601 format') }}",
+        "end": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('endTime', 'Event end time in ISO 8601 format') }}",
+        "useDefaultReminders": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Use_Default_Reminders', ``, 'boolean') }}",
+        "additionalFields": {
+          "description": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('description', 'Event description') }}",
+          "summary": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('title', 'Event title/summary') }}"
+        }
+      },
+      "id": "fb2889c0-32c2-43f3-aebf-7435ced4553c",
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -512,
+        1440
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "7O2OOATfYWCmBRqm",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": "primary",
+        "limit": 10,
+        "options": {}
+      },
+      "id": "d43810c9-e442-46f2-9bbe-20b9da760289",
+      "name": "Get Calendar Events",
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        -384,
+        1440
+      ],
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "7O2OOATfYWCmBRqm",
+          "name": "Google Calendar OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Prepare AI Context1').item.json.chatId }}",
+        "text": "=🍽️ Kya khaaya aaj? Batao mujhe!\n\nJust type what you ate and I'll log it for you 📝",
+        "additionalFields": {}
+      },
+      "id": "ddb4c73f-f27c-42a9-9c66-5cd6cbf149e8",
+      "name": "AddMeal: Ask User",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1344,
+        1520
+      ],
+      "webhookId": "ee242bad-3396-496b-9a99-ac6b6089d26a",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "meals",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ $('Prepare AI Context1').item.json.userId }}"
+            }
+          ]
+        }
+      },
+      "id": "334b4d9d-0da6-4a82-8a20-46dda4389331",
+      "name": "ViewMeals: Fetch DB",
+      "type": "n8n-nodes-base.supabase",
+      "typeVersion": 1,
+      "position": [
+        -1344,
+        1712
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const meals = $input.all();\nconst chatId = $('Prepare AI Context1').item.json.chatId;\n\nif (!meals || meals.length === 0) {\n  return [{ json: { chatId, text: '📭 Koi meal log nahi hai abhi!\\n\\nShuru karein? /addmeal use karo! 🍽️' } }];\n}\n\nlet msg = '📋 *Aapki Meal History:*\\n\\n';\nmeals.forEach((m, i) => {\n  const d = new Date(m.json.created_at);\n  const timeStr = d.toLocaleString('en-IN', { dateStyle: 'short', timeStyle: 'short' });\n  msg += `${i+1}. 🍽️ *${m.json.meal_name}*\\n   🆔 ID: \\`${m.json.id}\\`\\n   🕐 ${timeStr}\\n\\n`;\n});\n\nmsg += '_Edit karna hai? /editmeal use karo_\\n_Delete karna hai? /deletemeal use karo_';\n\nreturn [{ json: { chatId, text: msg } }];"
+      },
+      "id": "574e7222-ae7c-4a2e-9cbe-d2ad29c076a1",
+      "name": "ViewMeals: Format Output",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1120,
+        1712
+      ]
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.chatId }}",
+        "text": "={{ $json.text }}",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "e7b7366e-396f-4fd2-bf7a-3514b2ae7302",
+      "name": "ViewMeals: Send Response",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        1712
+      ],
+      "webhookId": "c731b3f6-c5cc-496c-a765-7fa6f3055bd1",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Prepare AI Context1').item.json.chatId }}",
+        "text": "=✏️ Kaunsa meal edit karna hai?\n\nPehle /viewmeals karke meal ID dekho, phir batao:\n\nFormat: `ID new_meal_name`\nExample: `3 Paneer Tikka + Roti`",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "7de0d25d-bfd7-4e50-b60a-b801e13def8d",
+      "name": "EditMeal: Ask User",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1344,
+        1904
+      ],
+      "webhookId": "d89d43fa-0c16-47ab-8f69-5fbe8fa5dcf8",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Prepare AI Context1').item.json.chatId }}",
+        "text": "=🗑️ Kaunsa meal delete karna hai?\n\nPehle /viewmeals karke meal ID dekho, phir ID send karo.\n\nExample: `5`",
+        "additionalFields": {
+          "parse_mode": "Markdown"
+        }
+      },
+      "id": "b3575ce2-45ee-4f20-a2e1-c4c02d0a998f",
+      "name": "DeleteMeal: Ask User",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -1344,
+        2096
+      ],
+      "webhookId": "27f0efd4-0a7a-4cfe-9124-9d9e7751b19d",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "9f100c1f-5909-44cc-895b-f76cc7d5edfa",
+      "name": "Telegram Bot Trigger1",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -2016,
+        1616
+      ],
+      "webhookId": "0958e18f-0b23-4263-8acb-39fb67bcf503",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "const msg = $input.item.json.message;\nconst userId = String(msg.from.id);\nconst userName = msg.from.first_name || msg.from.username || 'User';\nconst userMessage = msg.text || '';\nconst chatId = String(msg.chat.id);\n\n// Detect command\nlet command = 'message';\nif (userMessage.startsWith('/start')) command = 'start';\nelse if (userMessage.startsWith('/addmeal')) command = 'addmeal';\nelse if (userMessage.startsWith('/viewmeals')) command = 'viewmeals';\nelse if (userMessage.startsWith('/editmeal')) command = 'editmeal';\nelse if (userMessage.startsWith('/deletemeal')) command = 'deletemeal';\n\nreturn [{\n  json: {\n    userId,\n    userName,\n    userMessage,\n    chatId,\n    command,\n    sessionId: 'telegram_' + userId,\n    chatInput: userMessage\n  }\n}];"
+      },
+      "id": "0cf127f8-60b9-4361-b213-f1e9355eb4bd",
+      "name": "Prepare AI Context1",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -1792,
+        1616
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "options": {
+          "systemMessage": "You are an advanced AI-powered Health Assistant integrated inside a Telegram chatbot.\n\nCORE PERSONALITY:\n- You are a real human health coach, NOT a robotic system\n- Keep responses SHORT, friendly, and conversational (2-3 sentences max)\n- Use emojis naturally but not excessively\n- Guide users step-by-step like a caring coach\n- Mix English with slight Hinglish when appropriate (e.g., \"Kya khaaya aaj?\")\n\nYOUR ROLE:\n- Help users track meals and build healthy eating habits\n- Stay motivated and encouraging\n- Provide smart health coaching based on their meal history\n\nAVAILABLE TOOLS:\n- Get User Profile: Fetch user onboarding data (goal, meals/day, reminders)\n- Get User Meals: Retrieve all logged meals for a user\n- Add Meal: Log a new meal with timestamp\n- Update Meal: Edit an existing meal by ID\n- Delete Meal: Remove a meal by ID\n- Create User Profile: Create new user during onboarding\n- Log Event: Track important events for analytics\n- Create Calendar Event: Schedule meal reminders or health events in Google Calendar\n- Get Calendar Events: View upcoming scheduled events from Google Calendar\n\nCOMMAND HANDLING:\n- /addmeal → Ask: \"🍽️ Kya khaaya? Batao mujhe!\"\n- /viewmeals → Fetch and show meals in clean format\n- /editmeal → Ask: \"Kaunsa meal edit karna hai? Pehle /viewmeals karke ID dekho\"\n- /deletemeal → Ask: \"Kaunsa meal delete karein? ID batao\"\n\nCONVERSATION STYLE:\n- NEVER say: \"Enter value\", \"Fill form\", \"Submit\"\n- ALWAYS say: \"Batao...\", \"Kya khaaya...\", \"Kaunsa meal...\"\n- If unclear: \"Thoda clear batao 😅 samajh nahi aaya\"\n- Encourage: \"Consistency is key 🔥\", \"Good job 👏\"\n\nMEAL TRACKING:\n- When user mentions food, ask naturally: \"🍽️ Kya khaaya aaj?\"\n- Confirm: \"✅ Meal logged: [meal name]\"\n- For viewing: Show clean list with timestamps and IDs\n- For editing: \"Kaunsa meal edit karna hai? ID batao\"\n- For deleting: \"Kaunsa meal delete karein?\"\n\nCALENDAR INTEGRATION:\n- When user asks for reminders or scheduling, use Create Calendar Event\n- For daily meal reminders: \"I will add a daily reminder to your calendar! 📅\"\n- Show upcoming events when asked\n\nONBOARDING (for new users via AI path):\nGuide conversationally in 3 steps:\n1. \"What is your goal? (Weight loss / muscle gain / healthy eating)\"\n2. \"Roz kitni meals lete ho?\"\n3. \"Daily reminder chahiye? (yes/no)\"\nThen create profile and log onboarding_completed event.\n\nSMART COACHING:\n- Analyze meal patterns and give tips: \"Try adding more protein 💪\"\n- If inactive: \"Aaj kuch log nahi kiya 😄 kya khaaya?\"\n- Celebrate consistency: \"Great streak! 🎉\"\n\nCONTEXT AWARENESS:\n- User ID and name are in the input data\n- Always fetch user profile first to personalize responses\n- Use meal history to provide relevant coaching\n\nRemember: You are a HUMAN coach, not a system. Be warm, encouraging, and conversational!",
+          "maxIterations": 15,
+          "returnIntermediateSteps": false
+        }
+      },
+      "id": "bb481be8-f4c2-4fb0-82f4-d7dbedd8760f",
+      "name": "Health Coach AI1",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 3.1,
+      "position": [
+        -336,
+        1216
+      ]
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.sessionId }}",
+        "contextWindowLength": 10
+      },
+      "id": "ee214b65-193a-4237-a35d-d20921971971",
+      "name": "Conversation Memory1",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -768,
+        1440
+      ]
+    },
+    {
+      "parameters": {
+        "model": "openrouter/free",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "typeVersion": 1,
+      "position": [
+        -896,
+        1440
+      ],
+      "id": "a4b74efb-a046-45a7-9f8a-ab9471bf159c",
+      "name": "OpenRouter Chat Model1",
+      "credentials": {
+        "openRouterApi": {
+          "id": "XDirDGL1Xv3z9z3T",
+          "name": "OpenRouter account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "users",
+        "limit": 1,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userId', 'The Telegram user ID to fetch profile for') }}"
+            }
+          ]
+        }
+      },
+      "id": "86a8c097-6c7e-42d5-8521-8de12c39dbbd",
+      "name": "Get User Profile1",
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -256,
+        1440
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "tableId": "meals",
+        "returnAll": true,
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userId', 'The Telegram user ID to fetch meals for') }}"
+            }
+          ]
+        }
+      },
+      "id": "4e9c83c9-fee1-4120-9c66-2f4c86e0dfeb",
+      "name": "Get User Meals1",
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        -128,
+        1440
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "meals",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userId', 'The Telegram user ID') }}"
+            },
+            {
+              "fieldId": "meal_name",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('mealName', 'The name or description of the meal') }}"
+            },
+            {
+              "fieldId": "created_at",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('timestamp', 'Current timestamp in ISO format') }}"
+            }
+          ]
+        }
+      },
+      "id": "90bd066d-be33-49d1-9da0-90a57726ff9b",
+      "name": "Add Meal1",
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        0,
+        1440
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "tableId": "meals",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('mealId', 'The ID of the meal to update') }}"
+            },
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userId', 'The Telegram user ID') }}"
+            }
+          ]
+        },
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "meal_name",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('newMealName', 'The new name for the meal') }}"
+            }
+          ]
+        }
+      },
+      "id": "aaef71d5-5e1f-46a9-9f52-6372161847b1",
+      "name": "Update Meal1",
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        128,
+        1440
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "tableId": "meals",
+        "matchType": "allFilters",
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('mealId', 'The ID of the meal to delete') }}"
+            },
+            {
+              "keyName": "user_id",
+              "condition": "eq",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userId', 'The Telegram user ID') }}"
+            }
+          ]
+        }
+      },
+      "id": "0b6b0c81-3728-45a2-93ea-61c6d1f2ef80",
+      "name": "Delete Meal1",
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        256,
+        1440
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "tableId": "events",
+        "fieldsUi": {
+          "fieldValues": [
+            {
+              "fieldId": "user_id",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('userId', 'The Telegram user ID') }}"
+            },
+            {
+              "fieldId": "event_type",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('eventType', 'The type of event (e.g., meal_logged, onboarding_step_1_completed)') }}"
+            },
+            {
+              "fieldId": "event_data",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('eventData', 'JSON string with event details') }}"
+            },
+            {
+              "fieldId": "timestamp",
+              "fieldValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('timestamp', 'Current timestamp in ISO format') }}"
+            }
+          ]
+        }
+      },
+      "id": "bd53c992-7c50-4ca8-8816-1bff30a198dc",
+      "name": "Log Event1",
+      "type": "n8n-nodes-base.supabaseTool",
+      "typeVersion": 1,
+      "position": [
+        384,
+        1440
+      ],
+      "credentials": {
+        "supabaseApi": {
+          "id": "MiXz8UUmFyG8f8HW",
+          "name": "Supabase account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Prepare AI Context1').item.json.chatId }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "id": "eec9bbf0-1695-4e8a-a0f4-3f215fdd2224",
+      "name": "Send AI Response1",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        592,
+        1328
+      ],
+      "webhookId": "86fbe7db-ca62-4bdf-be87-35433729dc34",
+      "credentials": {
+        "telegramApi": {
+          "id": "CPEfePeKMWHjda9P",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Route Commands": {
+      "main": [
+        [
+          {
+            "node": "Check User Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AddMeal: Ask User",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ViewMeals: Fetch DB",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "EditMeal: Ask User",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DeleteMeal: Ask User",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch User Profile (AI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check User Exists": {
+      "main": [
+        [
+          {
+            "node": "Is New User?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is New User?": {
+      "main": [
+        [
+          {
+            "node": "Statsig: Assign Group",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Welcome Returning User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Statsig: Assign Group": {
+      "main": [
+        [
+          {
+            "node": "Set Group from Statsig",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Group from Statsig": {
+      "main": [
+        [
+          {
+            "node": "Create User in DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create User in DB": {
+      "main": [
+        [
+          {
+            "node": "Log: Group Assignment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log: Group Assignment": {
+      "main": [
+        [
+          {
+            "node": "Test or Control Group?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test or Control Group?": {
+      "main": [
+        [
+          {
+            "node": "Onboarding: Step 1 (Test Group)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Welcome: Control Group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Onboarding: Step 1 (Test Group)": {
+      "main": [
+        [
+          {
+            "node": "Log: Onboarding Step 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ViewMeals: Fetch DB": {
+      "main": [
+        [
+          {
+            "node": "ViewMeals: Format Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ViewMeals: Format Output": {
+      "main": [
+        [
+          {
+            "node": "ViewMeals: Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch User Profile (AI)": {
+      "main": [
+        [
+          {
+            "node": "Merge Profile + Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Profile + Context": {
+      "main": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create User Profile (Tool)": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Calendar Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Calendar Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Bot Trigger1": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Context1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Context1": {
+      "main": [
+        [
+          {
+            "node": "Route Commands",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Health Coach AI1": {
+      "main": [
+        [
+          {
+            "node": "Send AI Response1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Conversation Memory1": {
+      "ai_memory": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User Profile1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get User Meals1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Meal1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Meal1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Meal1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Event1": {
+      "ai_tool": [
+        [
+          {
+            "node": "Health Coach AI1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "0a1e4b09-3df0-4e04-ae0c-2184c91078ab",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "f6adcee696a06afbb45e685d893359d4636042d86331281f7fd7e481d1c65ea1"
+  },
+  "id": "TkNrAwo61XruNc2y",
+  "tags": []
+}
