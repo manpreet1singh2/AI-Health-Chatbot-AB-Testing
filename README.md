@@ -8,7 +8,7 @@ Perfect — you’ve already done the hardest part (workflow + video). Now I’l
 # 🧠 AI Health Coach Chatbot (Telegram + n8n + A/B Testing)
 
 ## 🎥 Intro Video
-Loom Video: https://www.loom.com/share/278f51b20e094e07998a2e5ab680c776
+Loom Video: https://www.loom.com/share/64a5bf8ba4cb455f9b8515720a6a6b31
 
 ---
 
